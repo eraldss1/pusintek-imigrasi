@@ -8,6 +8,7 @@ from dotenv import load_dotenv
 from utils.get_tableau_object_anytree import getTableauObject, getTableauObjectPersonalAccessToken
 from utils.project_action import createProject, deleteAllProjects
 from utils.site_action import createSite, isSiteExist
+from utils.supporting_function import get_file_exension
 from utils.workbook_action import downloadWorkbook, migrateWorkbook
 
 
@@ -81,11 +82,9 @@ if __name__ == "__main__":
             if not isSiteExist(node.name, new_server_object):
                 print(f"Site '{node.name}' not exist in new server.")
                 createSite(new_server, new_server_auth, node.name)
-
-        if node.type == "Project" and node.name != "Default":
+        elif node.type == "Project" and node.name != "Default":
             createProject(new_server, new_server_auth, node)
-
-        if node.type == "Workbook":
+        elif node.type == "Workbook":
             file_path = downloadWorkbook(old_server, old_server_auth, node)
             migrateWorkbook(new_server, new_server_auth, node, file_path)
 

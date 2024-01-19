@@ -1,10 +1,7 @@
-from pathlib import Path
-import os
+try:
+    print("dalam try")
+    raise Exception
+except:
+    pass
 
-root_path = os.getcwd()
-temp_path = os.path.join(root_path, 'temp')
-file_name = 'Superstore - Inside Project - Erald Insider.twbx'
-file_path = os.path.join(temp_path, file_name)
-
-print(file_path)
-print(os.path.isfile(file_path))
+print("lewat")

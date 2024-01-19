@@ -41,9 +41,11 @@ def migrateWorkbook(
         # Find target project in new server
         projects_in_new = findall(
             new_server_object,
-            filter_=lambda node: node.name == source_parent.name
+            filter_=lambda node:
+                node.name.lower() == source_parent.name.lower()
         )
 
+        target_project = None
         for project in projects_in_new:
             project_ancestor = util.commonancestors(project)
             project_ancestor = [
@@ -57,23 +59,33 @@ def migrateWorkbook(
         print("Target project:", target_project.name)
         print("Target project id:", target_project.id)
 
-        print("Publising workbook")
+        if target_project.name.lower() == "default":
+            mode = "Overwrite"
+        else:
+            mode = "CreateNew"
+
+        print("Publishing workbook")
         # Migrate workbook
         new_woorkbook = TSC.WorkbookItem(
             name=source_workbook.name,
             project_id=target_project.id
         )
-        new_woorkbook = server.workbooks.publish(
-            workbook_item=new_woorkbook,
-            file=file_path,
-            mode='CreateNew',
-            as_job=False,
-        )
-        print('Workbook published\n')
+
+        try:
+            new_woorkbook = server.workbooks.publish(
+                workbook_item=new_woorkbook,
+                file=file_path,
+                mode=mode,
+                as_job=False,
+                skip_connection_check=True
+            )
+            print('Workbook published\n')
+        except:
+            print("Publish failed\n")
 
         # Delete file
         os.remove(file_path)
-        time.sleep(3)
+        time.sleep(5)
 
 
 def downloadWorkbook(server: TSC.Server, authentication: TSC.TableauAuth, workbook_node: AnyNode):
