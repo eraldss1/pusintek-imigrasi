@@ -62,7 +62,7 @@ def getTableauObject(server: TSC.Server, authentication: TSC.TableauAuth, root: 
 
             projects, pagination_item = server.projects.get()
             for project in projects:
-                if (project.parent_id == None and project.name == 'Release'):
+                if (project.parent_id == None):
                     projectitem = AnyNode(
                         type="Project",
                         id=project.id,
@@ -79,7 +79,7 @@ def getTableauObject(server: TSC.Server, authentication: TSC.TableauAuth, root: 
 
 def getTableauObjectPersonalAccessToken(server: TSC.Server, token: TSC.PersonalAccessTokenAuth, root: AnyNode):
     with server.auth.sign_in(token):
-
+        print("Creating server object tree..")
         nodesite = AnyNode(
             type="Site",
             id=server.site_id,
@@ -89,7 +89,7 @@ def getTableauObjectPersonalAccessToken(server: TSC.Server, token: TSC.PersonalA
 
         projects, pagination_item = server.projects.get()
         for project in projects:
-            if (project.parent_id == None and project.name == 'Release'):
+            if (project.parent_id == None):
                 projectitem = AnyNode(
                     type="Project",
                     id=project.id,

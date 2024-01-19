@@ -82,7 +82,7 @@ if __name__ == "__main__":
                 print(f"Site '{node.name}' not exist in new server.")
                 createSite(new_server, new_server_auth, node.name)
 
-        if node.type == "Project" and node.name != "Release":
+        if node.type == "Project" and node.name != "Default":
             createProject(new_server, new_server_auth, node)
 
         if node.type == "Workbook":

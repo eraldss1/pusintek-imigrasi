@@ -14,26 +14,13 @@ def deleteAllProjects(server: TSC.Server, authentication: TSC.TableauAuth):
             for site in sites:
                 server.auth.switch_site(site)
 
-                req_options = TSC.RequestOptions()
-                req_options.filter.add(
-                    TSC.Filter(
-                        TSC.RequestOptions.Field.Name,
-                        TSC.RequestOptions.Operator.Equals,
-                        'Release'
-                    )
-                )
-                projects, pagination_item = server.projects.get(
-                    req_options=req_options
-                )
-                parent = projects[0]
-
                 projects, pagination_item = server.projects.get()
                 for project in projects:
-                    if (project.parent_id == parent.id):
+                    if (project.parent_id == None and project.name != 'Default'):
                         server.projects.delete(project.id)
 
         print("New server formatted\n")
-    time.sleep(3)
+    time.sleep(5)
 
 
 def createProject(server: TSC.Server, authentication: TSC.TableauAuth, project_node: AnyNode):
@@ -55,68 +42,41 @@ def createProject(server: TSC.Server, authentication: TSC.TableauAuth, project_n
         server.auth.switch_site(target_site)
         print("Target site:", target_site.name)
 
-        req_options = TSC.RequestOptions()
-        req_options.filter.add(
-            TSC.Filter(
-                TSC.RequestOptions.Field.Name,
-                TSC.RequestOptions.Operator.Equals,
-                project_node.parent.name
+        # if project_node.name == "default":
+        #     print(project_node.parent_id)
+
+        if not project_node.parent_id:
+            if project_node.name.lower() != "default":
+                new_project = TSC.ProjectItem(
+                    name=project_node.name,
+                )
+                new_project = server.projects.create(new_project)
+                print("Project created\n")
+            else:
+                print()
+
+        else:
+            req_options = TSC.RequestOptions()
+            req_options.filter.add(
+                TSC.Filter(
+                    TSC.RequestOptions.Field.Name,
+                    TSC.RequestOptions.Operator.Equals,
+                    project_node.parent.name
+                )
             )
-        )
-        # print(project_node.parent.name)
+            # print(project_node.parent.name)
 
-        projects, pagination_item = server.projects.get(
-            req_options=req_options,
-        )
-        target_project = projects[0]
-        print("Target project:", target_project.id, "")
+            projects, pagination_item = server.projects.get(
+                req_options=req_options,
+            )
+            target_project = projects[0]
+            print("Target project:", target_project.id, "")
 
-        new_project = TSC.ProjectItem(
-            name=project_node.name,
-            parent_id=target_project.id
-        )
+            new_project = TSC.ProjectItem(
+                name=project_node.name,
+                parent_id=target_project.id
+            )
+            new_project = server.projects.create(new_project)
+            print("Project created\n")
 
-        new_project = server.projects.create(new_project)
-        print("Project created\n")
-        time.sleep(3)
-
-
-def isProjectExist(old_server_object: AnyNode, new_server_object: AnyNode, project_node):
-    # old_site = util.commonancestors(project_node)[1]
-
-    # projects_in_old = findall(
-    #     old_server_object,
-    #     filter_=lambda node: node.name == project_node.name
-    # )
-
-    # print(f"Current project: {project_node.name}")
-    # source_project_ancestor = util.commonancestors(project_node)
-    # source_project_ancestor = [x.name for x in source_project_ancestor][1:]
-    # print(source_project_ancestor, "\n")
-
-    # projects_in_new = findall(
-    #     new_server_object,
-    #     filter_=lambda node: node.name == project_node.name
-    # )
-
-    # i = 0
-    # for project in projects_in_new:
-    #     i += 1
-    #     target_project_ancestor = util.commonancestors(project)
-    #     target_project_ancestor = [x.name for x in target_project_ancestor][1:]
-
-    #     print(f"Target {i}: ", target_project_ancestor)
-    # print("---")
-
-    # for project in projects_in_new:
-
-    # print(f"Current site: {current_site.name}")
-    # if len(projects_in_new) == 0:
-    #     print(f"No {project_name} in new server")
-    # else:
-    #     for project in projects_in_new:
-    #         print(util.commonancestors(project))
-
-    # # print()
-
-    return False
+        time.sleep(5)
