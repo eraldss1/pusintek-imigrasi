@@ -1,3 +1,4 @@
+from email.policy import default
 import tableauserverclient as TSC
 import time
 
@@ -15,9 +16,20 @@ def deleteAllProjects(server: TSC.Server, authentication: TSC.TableauAuth):
                 server.auth.switch_site(site)
 
                 projects, pagination_item = server.projects.get()
+                defaults_id = []
                 for project in projects:
-                    if (project.parent_id == None and project.name != 'Default'):
+                    if (project.parent_id == None):
+                        if project.name.lower() != 'default':
+                            server.projects.delete(project.id)
+                        else:
+                            defaults_id.append(project.id)
+
+                    if project.parent_id in defaults_id:
                         server.projects.delete(project.id)
+
+                workbooks, pagination_item = server.workbooks.get()
+                for workbook in workbooks:
+                    server.workbooks.delete(workbook.id)
 
         print("New server formatted\n")
     time.sleep(5)
